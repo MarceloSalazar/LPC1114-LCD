@@ -11,6 +11,7 @@ El objetivo final es un **reloj digital con alarma** programado en C.
 | Fase | Contenido | Estado |
 |------|-----------|--------|
 | 1 | Diseño hardware (KiCad 10, PCB de 2 capas para JLCPCB) | Rev 1.0: lista para fabricar |
+| 1b | Caja impresa en 3D de dos piezas (FreeCAD) | Lista: STEP + STL en [enclosure/](enclosure) |
 | 2 | Firmware en C: reloj digital con alarma (+ tests) | Pendiente |
 
 ## Características
@@ -34,6 +35,7 @@ LPC1114-LCD/
 │   ├── lib/                  Símbolos y footprints propios (LPC1114FN28, LCD 18 pines, CH340C)
 │   ├── fabrication/          Ficheros para JLCPCB (Gerber .zip), BOM y modelo 3D STEP
 │   └── scripts/              export_fab.ps1: ERC/DRC y generación de todos los ficheros
+├── enclosure/                Caja 3D (FreeCAD): script paramétrico, STEP y STL
 ├── firmware/                 Fase 2 (en C)
 │   ├── app/                  Aplicación (reloj con alarma); inc/board.h = mapa de pines
 │   ├── lib/                  CMSIS / drivers
@@ -88,6 +90,13 @@ Para regenerar los ficheros después de modificar el diseño en KiCad:
 ```powershell
 powershell -ExecutionPolicy Bypass -File hardware\scripts\export_fab.ps1
 ```
+
+## Caja
+
+![Caja montada](docs/images/case_assembled.png)
+
+Dos piezas (superior con el display, e inferior como base) unidas con 4 tornillos M3 × 16 desde abajo. Los pulsadores van integrados en la tapa.
+Detalles, impresión y tornillería en [enclosure/README.md](enclosure/README.md).
 
 ## Montaje
 
