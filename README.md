@@ -6,6 +6,8 @@ El objetivo final es un **reloj digital con alarma** programado en C.
 
 ![PCB, vista superior](docs/images/pcb_top.png)
 
+**Esquemático:** [docs/hardware/LPC1114-LCD_schematic.pdf](docs/hardware/LPC1114-LCD_schematic.pdf)
+
 | Fase | Contenido | Estado |
 |------|-----------|--------|
 | 1 | Diseño hardware (KiCad 10, PCB de 2 capas para JLCPCB) | Rev 1.0: lista para fabricar |
@@ -38,7 +40,7 @@ LPC1114-LCD/
 │   └── tests/                Tests unitarios
 └── docs/
     ├── datasheets/           Hojas de datos de los componentes
-    ├── hardware/             Notas de diseño y esquemático en PDF
+    ├── hardware/             Notas de diseño y esquemático en PDF (LPC1114-LCD_schematic.pdf)
     └── images/               Renders del PCB
 ```
 
