@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------- KiCad
+*-backups/
+*.kicad_prl
+fp-info-cache
+*.lck
+_autosave-*
+*.bak
+*.kicad_sch-bak
+*.kicad_pcb-bak
+\#auto_saved_files\#
+# raw Gerber/drill folder is regenerated; the zip in hardware/fabrication is committed
+hardware/fabrication/gerbers/
+hardware/fabrication/*.rpt
+
+# ---------------------------------------------------------------- Firmware build output
+build/
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.axf
+
+# ---------------------------------------------------------------- OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/*
+!.vscode/extensions.json
