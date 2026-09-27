@@ -12,11 +12,13 @@
 | Ref. | Componente | Enlace |
 |------|------------|--------|
 | U1 | LPC111x, **manual de usuario UM10398** (imprescindible para el firmware) | Página del LPC1114 en <https://www.nxp.com> → *Documentation* → *User Manual* (UM10398) |
-| U2 | Microchip MCP1700 (LDO de 3,3 V) | <https://ww1.microchip.com/downloads/en/DeviceDoc/MCP1700-Low-Quiescent-Current-LDO-20001826E.pdf> |
-| U3 | WCH CH340C (USB-UART) | <https://www.wch-ic.com/downloads/CH340DS1_PDF.html> |
-| U4 | Analog Devices DS3231M (RTC ±5 ppm) | <https://www.analog.com/en/products/ds3231m.html> |
+| U2 | Torex XC6206P332MR (LDO de 3,3 V), LCSC C5446 | <https://www.lcsc.com/product-detail/C5446.html> |
+| U3 | WCH CH340C (USB-UART), LCSC C84681 | <https://www.wch-ic.com/downloads/CH340DS1_PDF.html> |
+| U5 | ST USBLC6-2SC6 (protección ESD USB) | <https://www.st.com/en/protections-and-emi-filters/usblc6-2.html> |
 | DS1 | Sitronix ST7066U (controlador del LCD, compatible con HD44780) | <https://www.sparkfun.com/datasheets/LCD/st7066.pdf> |
-| Q1, Q2 | BC337 (NPN) | <https://www.onsemi.com/pdf/datasheet/bc337-d.pdf> |
-| D6, D7 | BAT43 (Schottky) | <https://www.vishay.com/docs/85660/bat42.pdf> |
-| F1 | Littelfuse 1206L050 (PTC de 0,5 A) | <https://www.littelfuse.com/products/polyswitch-resettable-ptcs/surface-mount/1206l.aspx> |
-| J1 | Würth 629105150521 (micro USB B) | <https://www.we-online.com/components/products/datasheet/629105150521.pdf> |
+| Q1, Q2 | SS8050 (NPN, SOT-23), LCSC C2150 | <https://www.lcsc.com/product-detail/C2150.html> |
+| D6, D7 | B5819W (Schottky, SOD-123), LCSC C8598 | <https://www.lcsc.com/product-detail/C8598.html> |
+| Y1 | YXC X322512MSB4SI, 12 MHz 3225 (CL = 20 pF), LCSC C9002 | <https://www.lcsc.com/product-detail/C9002.html> |
+| SW1–SW5 | XKB TS-1187A-B-A-B, pulsador SMD de 5,1 × 5,1 mm, LCSC C318884 | <https://www.lcsc.com/product-detail/C318884.html> |
+| J1 | XKB U254-051T-4BH83-F1S (micro USB B), LCSC C397452 | <https://www.lcsc.com/product-detail/C397452.html> |
+| BZ1 | TDK PS1420P02CT (buzzer piezo de Ø14 mm) | <https://www.digikey.es/es/products/detail/tdk/PS1420P02CT/935925> |

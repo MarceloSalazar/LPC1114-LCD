@@ -1,5 +1,5 @@
 /*
- * board.h - LPC1114-LCD rev 1.0 pin map and board constants.
+ * board.h - LPC1114-LCD v1.1 pin map and board constants.
  *
  * Generated from the hardware design (hardware/LPC1114-LCD.kicad_sch).
  * Keep in sync with the schematic whenever the hardware changes.
@@ -18,8 +18,7 @@
  */
 
 /* ---------------------------------------------------------------- LCD 1602 (4-bit, write only: R/W tied to GND)
- * Lines are 5 V tolerant; RN1 pulls them to 5 V so the firmware may use either
- * push-pull (3.3 V high) or open-drain (IOCON OD = 1, 5 V high via RN1).
+ * Driven push-pull at 3.3 V (HD44780/ST7066 VIH = 2.2 V). No external pull-ups.
  */
 #define LCD_RS_PORT             1
 #define LCD_RS_PIN              5   /* PIO1_5, DIP pin 14 */
@@ -56,18 +55,19 @@
 #define LED3_PORT               0
 #define LED3_PIN                7   /* PIO0_7, DIP pin 28 - green (high-current pin) */
 
-/* ---------------------------------------------------------------- Buzzer (passive, NPN driver, active high)
- * PWM on CT16B1_MAT0 (IOCON FUNC=1). 10k pull-down keeps it off during reset.
+/* ---------------------------------------------------------------- Buzzer (TDK PS1420P02CT piezo, ~2 kHz resonance)
+ * NPN low side on 5 V, active high. PWM on CT16B1_MAT0 (IOCON FUNC=1).
+ * 10k pull-down keeps it off during reset.
  */
 #define BUZZER_PORT             1
 #define BUZZER_PIN              9   /* PIO1_9, DIP pin 18 */
+#define BUZZER_RESONANCE_HZ     2000UL
 
-/* ---------------------------------------------------------------- I2C: DS3231M RTC (4k7 pull-ups to 3.3 V) */
+/* ---------------------------------------------------------------- I2C expansion on J2 pins 6/7 (4k7 pull-ups to 3.3 V) */
 #define I2C_SCL_PORT            0
 #define I2C_SCL_PIN             4   /* PIO0_4, DIP pin 27 */
 #define I2C_SDA_PORT            0
 #define I2C_SDA_PIN             5   /* PIO0_5, DIP pin 5 */
-#define RTC_I2C_ADDR            0x68U
 
 /* ---------------------------------------------------------------- UART (CH340C on micro USB, and header J3) */
 #define UART_RXD_PORT           1

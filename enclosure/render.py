@@ -62,9 +62,9 @@ doc.recompute()
 shot("case_exploded.png", cam(30, 22))
 top.Placement = App.Placement()
 pcb.Placement = App.Placement()
-# 5. cross-section through the buttons (y = 68.25): stems on the switches
+# 5. cross-section through the buttons (y = 47.6): stems on the switches
 import Part
-cutter = Part.makeBox(200, 200, 200, Vector(-50, -68.25, -50))   # keeps the display side (y < 68.25)
+cutter = Part.makeBox(200, 200, 200, Vector(-50, -47.6, -50))   # keeps the display side (y < 47.6)
 secs = []
 for name, src, color in (("SecBase", base, (0.25, 0.27, 0.30)), ("SecTop", top, (0.82, 0.84, 0.86)), ("SecPCB", pcb, (0.10, 0.45, 0.20))):
     o = doc.addObject("Part::Feature", name)

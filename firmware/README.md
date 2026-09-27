@@ -1,4 +1,4 @@
-# Firmware (fase 2): reloj digital con alarma
+# Firmware (fase 2): temporizador Pomodoro / reloj
 
 > Pendiente. Esta carpeta contiene de momento la estructura y el mapa de pines de la placa.
 
@@ -6,8 +6,8 @@
 
 | Carpeta | Contenido |
 |---------|-----------|
-| `app/inc/` | Cabeceras de la aplicación. [`board.h`](app/inc/board.h) define el mapa de pines de la rev 1.0 |
-| `app/src/` | Código de la aplicación: arranque, drivers (GPIO, LCD, I2C/RTC, UART, PWM) y lógica del reloj y la alarma |
+| `app/inc/` | Cabeceras de la aplicación. [`board.h`](app/inc/board.h) define el mapa de pines de la v1.1 |
+| `app/src/` | Código de la aplicación: arranque, drivers (GPIO, LCD, UART, PWM, I2C de expansión) y lógica del temporizador Pomodoro y del reloj |
 | `lib/` | Dependencias externas (CMSIS-Core para Cortex-M0, cabeceras del LPC11xx) |
 | `tests/` | Tests unitarios de la lógica independiente del hardware, ejecutados en el PC |
 

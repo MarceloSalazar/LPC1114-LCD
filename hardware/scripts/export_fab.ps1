@@ -58,11 +58,53 @@ $zip = Join-Path $fab "${name}_JLCPCB.zip"
 Remove-Item $zip -Force -ErrorAction SilentlyContinue
 Compress-Archive -Path (Join-Path $gbr "*") -DestinationPath $zip
 
-Write-Host "== BOM"
-Invoke-Cli sch export bom --output (Join-Path $fab "${name}_BOM.csv") `
-    --fields "Reference,Value,Footprint,`${QUANTITY},MPN,Description" `
-    --labels "Reference,Value,Footprint,Qty,MPN,Description" `
-    --group-by "Value,Footprint" --exclude-dnp $sch
+Write-Host "== BOM (full, grouped)"
+$bomAll = Join-Path $fab "${name}_BOM.csv"
+Invoke-Cli sch export bom --output $bomAll `
+    --fields "Reference,Value,Footprint,`${QUANTITY},LCSC,Assembly,MPN,Description" `
+    --labels "Reference,Value,Footprint,Qty,LCSC,Assembly,MPN,Description" `
+    --group-by "Value,Footprint,LCSC" --exclude-dnp $sch
+$rows = Import-Csv $bomAll
+
+Write-Host "== JLCPCB PCBA: BOM + CPL (only parts with an LCSC number)"
+$jlc = $rows | Where-Object { $_.LCSC -ne "" }
+$jlc | ForEach-Object {
+    [pscustomobject]@{
+        "Comment"      = $_.Value
+        "Designator"   = $_.Reference
+        "Footprint"    = ($_.Footprint -split ":")[-1]
+        "LCSC Part #"  = $_.LCSC
+    }
+} | Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $fab "${name}_JLCPCB_BOM.csv")
+# expand "R5-R7" style ranges and comma lists into individual designators
+$jlcRefs = @{}
+foreach ($r in $jlc) {
+    foreach ($tok in ($r.Reference -split ",")) {
+        $tok = $tok.Trim()
+        if ($tok -match '^([A-Z]+)(\d+)-[A-Z]*(\d+)$') {
+            for ($i = [int]$Matches[2]; $i -le [int]$Matches[3]; $i++) { $jlcRefs["$($Matches[1])$i"] = $true }
+        } else { $jlcRefs[$tok] = $true }
+    }
+}
+$posRaw = Join-Path $fab "pos_all.csv"
+Invoke-Cli pcb export pos --output $posRaw --format csv --units mm --side front $pcb
+Import-Csv $posRaw | Where-Object { $jlcRefs.ContainsKey($_.Ref) } | ForEach-Object {
+    [pscustomobject]@{
+        "Designator" = $_.Ref
+        "Mid X"      = "$($_.PosX)mm"
+        "Mid Y"      = "$($_.PosY)mm"
+        "Layer"      = "Top"
+        "Rotation"   = $_.Rot
+    }
+} | Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $fab "${name}_JLCPCB_CPL.csv")
+Remove-Item $posRaw -ErrorAction SilentlyContinue
+$missing = $jlcRefs.Keys | Where-Object { -not ((Import-Csv (Join-Path $fab "${name}_JLCPCB_CPL.csv")).Designator -contains $_) }
+if ($missing) { throw "CPL is missing placements for: $($missing -join ', ')" }
+
+Write-Host "== Parts to hand-solder (Assembly=USER)"
+$rows | Where-Object { $_.Assembly -eq "USER" } |
+    Select-Object Reference, Value, Footprint, Qty, MPN, Description |
+    Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $fab "${name}_hand_solder.csv")
 
 Write-Host "== Schematic PDF"
 Invoke-Cli sch export pdf --output (Join-Path $docs "${name}_schematic.pdf") $sch

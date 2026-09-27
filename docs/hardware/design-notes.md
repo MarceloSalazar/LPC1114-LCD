@@ -1,102 +1,90 @@
-# Notas de diseño: LPC1114-LCD rev 1.0
+# Notas de diseño: LPC1114-LCD v1.1
 
-Documento de referencia del hardware (fase 1). El esquemático completo está en
-[LPC1114-LCD_schematic.pdf](LPC1114-LCD_schematic.pdf) y el proyecto KiCad en [hardware/](../../hardware).
+Documento de referencia del hardware. El esquemático completo está en [LPC1114-LCD_schematic.pdf](LPC1114-LCD_schematic.pdf)
+y el proyecto KiCad en [hardware/](../../hardware). Los motivos del paso a PCBA con componentes Basic están en
+[schematic-review-jlcpcb.md](schematic-review-jlcpcb.md).
 
-## 1. Decisiones principales
+## 1. Cambios respecto a la v1.0
+
+| v1.0 (THT, montaje manual) | v1.1 (PCBA JLCPCB) |
+|-------------------------------|------------------------|
+| 80 × 76 mm | **80 × 52 mm**: casi toda la electrónica va debajo del LCD |
+| RTC DS3231M + pila CR2032 | **Eliminados**. Como temporizador Pomodoro, la hora la lleva el propio LPC1114 con el cristal de 12 MHz de ±10 ppm |
+| MCP1700 (TO-92) | **XC6206P332MR** (SOT-23, Basic C5446) |
+| BC337 (TO-92) | **SS8050** (SOT-23, Basic C2150) |
+| Fusible PTC 500 mA | Eliminado: el puerto USB del PC ya limita la corriente |
+| Sin protección ESD en el USB | **USBLC6-2SC6** (lo sueldas tú) |
+| Buzzer magnético de 12 mm con diodo | **Piezo TDK PS1420P02CT** (lo sueldas tú) con NPN y 1 kΩ en paralelo |
+| Pull-ups de 5 V en el LCD (RN1) | Eliminados: lógica push-pull a 3,3 V (VIH del HD44780/ST7066 = 2,2 V) |
+| Conector ARM de 10 pines + UART de 1 × 3 | **Pads de 1 × 7** (SWD + I2C) y **pads de 1 × 3** (UART) en el borde superior de la franja |
+| Pulsadores de 6 × 6 mm THT | **TS-1187A** 5,1 × 5,1 × 1,5 mm SMD (Basic C318884) |
+| LEDs de 3 mm, resistencias y condensadores THT | 0805 / 0603 Basic |
+| 2 taladros M3 para fijar el PCB | Eliminados: el PCB queda sujeto entre base y tapa mediante los 4 separadores del LCD |
+
+## 2. Decisiones principales
 
 | Tema | Decisión | Motivo |
 |------|----------|--------|
-| Tensión del MCU | **3,3 V** (no 3,6 V) | El datasheet del LPC111x especifica VDD de 1,8 a 3,6 V con 3,3 V nominal. 3,6 V deja el MCU en el límite superior, sin margen, y los reguladores de 3,6 V son poco comunes. |
-| Regulador | MCP1700-3302E/TO (TO-92, 250 mA) | Caída de solo 178 mV (funciona aunque el USB baje a 4,75 V), consumo en reposo de 1,6 µA y encapsulado THT. |
-| Precisión del reloj | Cristal de 12 MHz + **RTC DS3231M** + CR2032 | El LPC1114 no tiene RTC y su oscilador interno tiene un error de ±1 % (unos 14 min/día). El DS3231M (±5 ppm, unos 0,4 s/día) mantiene la hora sin alimentación. |
-| LCD a 5 V | VDD del LCD a 5 V, R/W a GND | El módulo necesita 4,5–5,5 V. Con R/W a GND solo se escribe y el LCD nunca envía 5 V al MCU. |
-| Niveles lógicos del LCD | Push-pull a 3,3 V, u *open-drain* con RN1 (10k a 5 V) | Los pines usados toleran 5 V. Si algún módulo no reconoce 3,3 V como nivel alto, el firmware puede activar el modo open-drain (bit OD de IOCON) y RN1 lleva las líneas a 5 V. |
-| USB-serie | CH340C a 3,3 V (V3 unido a VCC) | No necesita cristal y los niveles de TX/RX son directamente de 3,3 V. |
-| ISP/RESET automáticos | Diodos Schottky desde DTR#/RTS#, con JP1/JP2 **abiertos** por defecto | Si estuvieran siempre cerrados, abrir un terminal serie podría dejar el MCU en reset. Se cierran con estaño si se quiere usar `lpc21isp -control`. |
-| Buzzer y retroiluminación | Transistor NPN BC337 en el lado bajo, 1k en la base y 10k de pull-down | Al arrancar, los pines del LPC tienen pull-up interno activo. El pull-down de 10k evita que el buzzer o la retroiluminación se enciendan en el reset. |
-| Retroiluminación | R9 (pin 16), R10 y R11 (pines 17/18, solo en módulos RGB) de 100 Ω hacia el colector de Q1 | Con 16 pines solo se usa R9. Si el módulo ya lleva resistencia propia y queda poco brillo, R9 puede bajarse o sustituirse por un puente. |
-| Programación | SWD (conector ARM de 10 pines a 2,54 mm, con carcasa) + bootloader UART | El LPC1114 **no tiene JTAG**, solo SWD. La carcasa del conector impide enchufar el cable al revés. |
+| Tensión del MCU | 3,3 V | El LPC111x funciona de 1,8 a 3,6 V, con 3,3 V nominal. |
+| USB-serie | CH340C a 3,3 V (V3 unido a VCC), Extended C84681 | No hay USB-serie en Basic. El CP2102 (Preferred Extended) solo sale más barato a partir de unas 20 placas. |
+| LCD | VDD a 5 V, R/W a GND, datos a 3,3 V | Solo se escribe, así que el LCD nunca envía 5 V al MCU. |
+| ISP/RESET automáticos | Diodos B5819W desde DTR#/RTS#, con JP1/JP2 **abiertos** por defecto | Evita que abrir un terminal serie deje el MCU en reset. Se cierran con estaño para usar `lpc21isp -control`. |
+| Buzzer | Piezo a 5 V con SS8050 en el lado bajo y 1 kΩ en paralelo | Con el piezo en carga capacitiva, la resistencia lo descarga en cada ciclo. Frecuencia de resonancia de unos 2 kHz. |
+| Retroiluminación | R9 (pin 16), R10 y R11 (pines 17/18 RGB) de 100 Ω hacia el colector de Q1 | Si el módulo lleva resistencia propia y queda poco brillo, R9 puede bajarse. |
+| Cabeceras | Solo pads; tú sueldas las tiras | JLCPCB no tiene que montar conectores THT, que serían Extended. |
 
-## 2. Presupuesto de consumo
+## 3. Presupuesto de consumo
 
 | Rail | Carga | Corriente aprox. |
 |------|-------|-----------------|
 | 3,3 V | LPC1114 a 48 MHz | ≤ 10 mA |
-| 3,3 V | CH340C activo | ~12 mA |
-| 3,3 V | 3 LEDs de usuario (470 Ω) + LED de encendido (1k) | ~10 mA |
-| 3,3 V | DS3231M | < 0,2 mA |
-| **3,3 V total** | | **~35 mA** (el MCP1700 da hasta 250 mA y disipa ~60 mW) |
-| 5 V | Lógica del LCD | ~1,5 mA |
-| 5 V | Retroiluminación (según módulo) | 15–50 mA |
-| 5 V | Buzzer (PWM) | 30–80 mA de pico |
-| **5 V total** | | **< 200 mA** (fusible PTC de 500 mA) |
+| 3,3 V | CH340C | ~12 mA |
+| 3,3 V | LEDs (470 Ω y 1k) | ~10 mA |
+| **3,3 V total** | | **~32 mA** (el XC6206 da 200 mA y disipa ~55 mW) |
+| 5 V | LCD: lógica y retroiluminación | 15–50 mA |
+| 5 V | Buzzer piezo | ~5 mA |
+| **5 V total** | | **< 100 mA** |
 
-Pila: el DS3231M consume unos 3 µA desde VBAT al mantener la hora, lo que da **varios años** con una CR2032.
+## 4. Mecánica (para la caja)
 
-## 3. Mecánica (para la caja impresa en 3D)
-
-- PCB de **80 × 76 mm**, esquinas con radio de 2 mm y 1,6 mm de grosor.
-  El modelo 3D completo está en [hardware/fabrication/LPC1114-LCD.step](../../hardware/fabrication/LPC1114-LCD.step).
-- Origen de las cotas: esquina **superior izquierda** del PCB (X hacia la derecha, Y hacia abajo), vista desde arriba.
+- PCB de **80 × 52 mm**, 1,6 mm de grosor y esquinas con radio de 2 mm. Modelo 3D en [LPC1114-LCD.step](../../hardware/fabrication/LPC1114-LCD.step).
+- Origen de las cotas: esquina superior izquierda del PCB, vista desde arriba (X hacia la derecha, Y hacia abajo).
 
 | Elemento | X (mm) | Y (mm) | Notas |
 |----------|-------:|-------:|-------|
-| Taladro LCD / caja (M2.5, Ø2,7) | 2,5 | 2,5 | Coincide con el taladro del módulo LCD |
-| Taladro LCD / caja (M2.5, Ø2,7) | 77,5 | 2,5 | |
-| Taladro LCD / caja (M2.5, Ø2,7) | 2,5 | 33,5 | |
-| Taladro LCD / caja (M2.5, Ø2,7) | 77,5 | 33,5 | |
-| Taladro caja (M3, Ø3,2) | 3,5 | 72,5 | |
-| Taladro caja (M3, Ø3,2) | 76,5 | 72,5 | |
-| Pin 1 del LCD | 8,0 | 2,5 | Fila de 18 pines a 2,54 mm hacia la derecha |
-| Módulo LCD (contorno) | 0 – 80 | 0 – 36 | Módulo estándar de 80 × 36 mm |
-| Micro USB (centro de la boca) | 0 | 25,0 | Borde izquierdo; la boca sobresale ~0,6 mm |
-| Pulsador MODE (centro) | 12,25 | 68,25 | Pulsadores de 6 × 6 mm |
-| Pulsador UP (centro) | 23,75 | 68,25 | |
-| Pulsador DOWN (centro) | 35,25 | 68,25 | |
-| Pulsador OK (centro) | 46,75 | 68,25 | |
-| Pulsador RESET (centro) | 63,25 | 68,25 | |
-| LEDs D1 / D2 / D3 / D4 (centro) | 9,77 / 20,77 / 31,77 / 42,77 | 60,0 | LEDs de 3 mm; D4 es el de encendido |
-| Buzzer (centro) | 8,3 | 49,0 | Ø12 mm; conviene dejar un orificio en la caja |
-| Trimmer de contraste RV1 | ~7,0 | 39,6 | Ajuste desde arriba |
-| Conector SWD J2 (centro) | ~38,6 | ~43,7 | Conector de 2 × 5 con carcasa |
-| UART J3 (pines 1-2-3) | 28,5 / 31,04 / 33,58 | 53,5 | |
+| Taladros del LCD (M2.5, Ø2,7) | 2,5 / 77,5 | 2,5 / 33,5 | También sujetan el PCB dentro de la caja |
+| Pin 1 del LCD | 8,0 | 2,5 | Fila de 18 pines a 2,54 mm |
+| Micro USB (boca) | 0 | 25,0 | Borde izquierdo |
+| Pulsadores MODE / UP / DOWN / OK / RESET | 21 / 31 / 41 / 51 / 63 | 47,6 | SMD de 5,1 × 5,1 mm y 1,5 mm de alto |
+| LEDs D1 / D2 / D3 / D4 (PWR) | 21 / 31 / 41 / 51 | 40,7 | 0805 |
+| Buzzer PS1420P02CT (centro) | 8,5 | 44,5 | Ø14 mm, patillas a 10 mm |
+| Tornillo del trimmer RV1 | 77,96 | 41,44 | Multivuelta vertical, patillas a 2,54 mm |
+| J2 (1 × 7), pin 1 → pin 7 | 18,6 → 33,84 | 37,3 | 3V3, SWDIO, SWCLK, RESET, GND, SCL, SDA |
+| J3 (1 × 3), pin 1 → pin 3 | 38,6 → 43,68 | 37,3 | GND, RX (entrada), TX (salida) |
 
-**Altura bajo el LCD**: con una tira de pines hembra estándar (8,5 mm) y los pines macho del LCD, el LCD queda
-a unos **11 mm** del PCB. Los componentes más altos que quedan debajo son el LPC1114 en su zócalo (~8 mm), R2
-montada en vertical (~9 mm) y la CR2032 en su portapilas (~6 mm). Usa separadores M2.5 de 11 mm entre el
-PCB y el LCD.
+**Alturas bajo el LCD**: con la tira hembra de 8,5 mm, el LCD queda a unos 11 mm del PCB. Debajo solo hay SMD de menos
+de 2 mm y el LPC1114 en su zócalo (~8 mm). J2 y J3 quedan fuera del LCD, así que admiten tiras rectas y cables dupont.
 
-## 4. Piezas no incluidas en la BOM del esquemático
+## 5. Montaje
 
-- Zócalo DIP-28 de 600 mil (15,24 mm) para U1.
-- Tira de pines **hembra** 1 × 16 (o 1 × 18) a 2,54 mm y 8,5 mm de altura, para el PCB.
-- Tira de pines **macho** 1 × 16 (o 1 × 18), para soldar al LCD.
-- 4 separadores M2.5 de 11 mm hembra-hembra y 8 tornillos M2.5.
-- 2 tornillos M3 para fijar a la caja.
-- Pila CR2032.
-- Cable plano de 10 hilos para SWD, si el programador no lo trae.
+1. JLCPCB monta los 43 componentes SMD de la [BOM](../../hardware/fabrication/LPC1114-LCD_JLCPCB_BOM.csv).
+2. Tú sueldas los de la [lista de soldadura manual](../../hardware/fabrication/LPC1114-LCD_hand_solder.csv):
+   - **U5, USBLC6-2SC6** (SOT-23-6, pads alargados): el primero, porque está al lado del USB.
+   - **Zócalo DIP-28** (U1), **tira hembra del LCD**, **RV1** (trimmer 10k), **BZ1** (buzzer; el «+» va en el pad cuadrado).
+   - **J2 y J3** si los necesitas.
+3. **Prueba sin el MCU**: conecta el USB y comprueba +5 V y +3V3, y que el PC detecta el CH340.
+4. Coloca el LPC1114 y el LCD, y ajusta RV1 hasta que se vean los caracteres.
 
-## 5. Montaje recomendado
+## 6. Reglas de diseño y verificación
 
-1. SMD primero: U3 (CH340C, SOIC-16), U4 (DS3231M, SOIC-8), J1 (micro USB) y F1 (1206). JP1/JP2 se dejan abiertos.
-2. Componentes bajos: resistencias (verticales), diodos, condensadores y el cristal Y1.
-3. Zócalo DIP-28, redes de resistencias RN1/RN2, transistores, U2, trimmer y LEDs (cátodo = pad cuadrado).
-4. Pulsadores, buzzer (respetando el «+»), portapilas, J2, J3 y la tira hembra del LCD.
-5. **Prueba sin el MCU**: conecta el USB y comprueba +5 V y +3V3 (en C2) y que el PC detecta el CH340.
-6. Coloca el LPC1114 y el LCD, y ajusta RV1 hasta que se vean los caracteres.
+- Pista de 0,25 mm (0,3 mm en +3V3/GND/retroiluminación/buzzer), separación de 0,2 mm, vías de 0,6/0,3 mm y plano de GND en las dos caras.
+- La separación entre agujero NPTH y cobre es de 0,15 mm. Solo afecta al micro USB, cuyo footprint oficial deja 0,18 mm entre sus pads y sus pivotes de fijación.
+- Verificación v1.1: **ERC 0**, **DRC 0 errores y 0 avisos**, **paridad esquemático-PCB OK** y **0 conexiones sin rutar**.
+  Para evitar una zona congestionada, la línea de +5V lleva un tramo pre-rutado sobre la tira del LCD y una vía de salida en el pin VBUS.
 
-## 6. Reglas de diseño (compatibles con JLCPCB estándar)
+## 7. Puntos a verificar
 
-- Pista de 0,25 mm (0,4 mm en alimentación y GND) y separación de 0,2 mm.
-- Vía de 0,6/0,3 mm (0,8/0,4 mm en alimentación) y 0,3 mm de separación entre cobre y borde.
-- Plano de GND en ambas caras.
-- Verificación rev 1.0: **ERC 0 errores**, **DRC 0 errores y 0 avisos**, **paridad esquemático-PCB OK** y 100 % rutado.
-
-## 7. Puntos a verificar antes o durante el montaje
-
-1. **LCD de 18 pines (RGB)**: he supuesto que los pines 17 y 18 continúan la misma fila a 2,54 mm, según la tabla de pines de Vishay.
-   Compruébalo con el módulo real. Con un LCD estándar de 16 pines, los pads 17 y 18 quedan libres.
-2. **Polaridad del portapilas** MYOUNG BS-07-A1BJ001: el pad cuadrado (1) es «+».
-3. **Brillo de la retroiluminación**: depende del módulo; ajusta R9 si hace falta.
-4. **`lpc21isp -control`**: según el adaptador puede hacer falta invertir DTR/RTS con `-controlinv`.
+1. **Orientación en JLCPCB**: revisa la vista previa de la CPL (SOT-23, SOIC-16, cristal de 4 pads, micro USB y pulsadores) antes de confirmar el pedido.
+2. **Pulsador TS-1187A**: el footprint es propio. Solo se usan dos pads en diagonal, así que funciona sea cual sea la pareja de patillas unida por dentro.
+3. **LCD RGB de 18 pines**: he supuesto que los pines 17 y 18 continúan la fila a 2,54 mm.
+4. **Buzzer**: separación de patillas de 10 mm, según me indicaste.

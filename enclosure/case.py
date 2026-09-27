@@ -25,7 +25,7 @@ PCB_STEP = os.path.join(ROOT, "hardware", "fabrication", "LPC1114-LCD.step")
 FONT = "C:/Windows/Fonts/arialbd.ttf"
 
 # ------------------------------------------------------------------ parameters (mm)
-PCB_W, PCB_H, PCB_T = 80.0, 76.0, 1.6
+PCB_W, PCB_H, PCB_T = 80.0, 52.0, 1.6
 WALL = 2.0                 # wall thickness
 FLOOR = 2.0                # base floor thickness
 LID = 2.0                  # top plate thickness
@@ -54,15 +54,17 @@ CAV = OUT - WALL                                # cavity offset from the PCB edg
 BOSSES = [(-BOSS_C, -BOSS_C), (PCB_W + BOSS_C, -BOSS_C), (-BOSS_C, PCB_H + BOSS_C), (PCB_W + BOSS_C, PCB_H + BOSS_C)]
 
 # board features (board-local, from the KiCad layout)
-PCB_SCREWS = [(3.5, 72.5), (76.5, 72.5)]                     # M3 holes H1/H2
+PCB_SCREWS = []            # v1.1: no PCB screws, the board is clamped through the LCD standoffs
 LCD_HOLES = [(2.5, 2.5), (77.5, 2.5), (2.5, 33.5), (77.5, 33.5)]  # M2.5 standoff screws underneath
-BUTTONS = [("MODE", 12.25, 68.25), ("UP", 23.75, 68.25), ("DOWN", 35.25, 68.25), ("OK", 46.75, 68.25)]
-RESET = (63.25, 68.25)
-LEDS = [(9.77, 60.0), (20.77, 60.0), (31.77, 60.0), (42.77, 60.0)]   # D1..D3, D4 = power
-BUZZER = (8.3, 49.0)
+BUTTONS = [("MODE", 21.0, 47.6), ("UP", 31.0, 47.6), ("DOWN", 41.0, 47.6), ("OK", 51.0, 47.6)]
+RESET = (63.0, 47.6)
+LEDS = [(21.0, 40.7), (31.0, 40.7), (41.0, 40.7), (51.0, 40.7)]   # 0805 LEDs D1..D3, D4 = power
+BUZZER = (8.5, 44.5)          # TDK PS1420P02CT centre
 USB_Y, USB_W, USB_Z0, USB_Z1 = 25.0, 12.0, -1.2, 7.4
-SW_TOP = PCB_T + 4.4        # tactile switch plunger top (6x6 mm, H = 5 mm)
-RV1_SCREW = (10.45, 40.75)  # Bourns 3296W adjust screw
+SW_TOP = PCB_T + 1.5        # TS-1187A SMD tactile switch, H = 1.5 mm
+LED_PIPE_D = 3.2            # hole for a 3 mm acrylic light pipe
+LED_TUBE_OD, LED_TUBE_Z0 = 4.4, PCB_T + 3.0   # guide tube from the lid down to just above the LED
+RV1_SCREW = (77.96, 41.44)  # Bourns 3296W adjust screw
 STEM_GAP = 0.4
 
 
@@ -162,12 +164,12 @@ def make_base():
     for x, y in LCD_HOLES:
         cuts.append(cyl(x, y, 2.6, Z_BOTTOM + FLOOR, 0.1))
     # pocket under the long legs of the contrast trimmer RV1
-    cuts.append(box(1.5, 38.0, 12.5, 41.8, Z_BOTTOM + FLOOR - 1.0, Z_BOTTOM + FLOOR + 0.1))
+    cuts.append(box(68.5, 38.0, 80.0, 42.6, Z_BOTTOM + FLOOR - 1.0, Z_BOTTOM + FLOOR + 0.1))
     # USB plug clearance (lower half)
     cuts.append(box(X0 - 1, USB_Y - USB_W / 2, -CAV + LIP_T + LIP_GAP + 0.5, USB_Y + USB_W / 2, USB_Z0, Z_SPLIT + LIP_H + 1))
     # bottom engraving (mirrored so it reads correctly from below)
     cuts.append(text_solid("LPC1114-LCD", PCB_W / 2, PCB_H / 2 - 4, Z_BOTTOM - 0.01, 0.6, 6.0, mirror=True))
-    cuts.append(text_solid("4x M3x16", PCB_W / 2, PCB_H / 2 + 6, Z_BOTTOM - 0.01, 0.6, 4.0, mirror=True))
+    cuts.append(text_solid("POMODORO  4x M3x16", PCB_W / 2, PCB_H / 2 + 5, Z_BOTTOM - 0.01, 0.6, 3.5, mirror=True))
     for c in cuts:
         base = base.cut(c)
     return base.removeSplitter()
@@ -181,6 +183,8 @@ def make_top(rv1_screw):
     adds = []
     for bx, by in BOSSES:
         adds.append(cyl(bx, by, BOSS_R, Z_SPLIT, Z_LID_IN + 0.01))
+    for x, y in LEDS:
+        adds.append(cyl(x, y, LED_TUBE_OD / 2, LED_TUBE_Z0, Z_LID_IN + 0.01))
     top = fuse([top] + adds)
     tongue_z = Z_LID_IN + 0.8            # tongue underside after thinning
 
@@ -194,20 +198,20 @@ def make_top(rv1_screw):
     # flexure buttons: U-slot + thinned tongue + finger dimple + engraved label
     y_root = PCB_H + CAV
     for name, x, y in BUTTONS:
-        slot_o = box(x - 4.6, y - 5.0, x + 4.6, y_root, Z_LID_IN - 1, Z_TOP + 1)
-        tongue = box(x - 3.8, y - 4.2, x + 3.8, y_root + 1, Z_LID_IN - 2, Z_TOP + 2)
+        slot_o = box(x - 4.0, y - 4.2, x + 4.0, y_root, Z_LID_IN - 1, Z_TOP + 1)
+        tongue = box(x - 3.2, y - 3.4, x + 3.2, y_root + 1, Z_LID_IN - 2, Z_TOP + 2)
         cuts.append(slot_o.cut(tongue))
-        cuts.append(box(x - 3.8, y - 4.2, x + 3.8, y_root - 0.8, Z_LID_IN - 1, tongue_z))
-        cuts.append(cyl(x, y, 3.0, Z_TOP - 0.4, Z_TOP + 1))
-        cuts.append(text_solid(name, x, y + 7.4, Z_TOP - 0.4, 1.0, 1.6))
+        cuts.append(box(x - 3.2, y - 3.4, x + 3.2, y_root - 0.8, Z_LID_IN - 1, tongue_z))
+        cuts.append(cyl(x, y, 2.6, Z_TOP - 0.4, Z_TOP + 1))
+        cuts.append(text_solid(name, x, y + 5.6, Z_TOP - 0.4, 1.0, 1.5))
     # reset (paper clip), LEDs, contrast trimmer
     cuts.append(cyl(RESET[0], RESET[1], 1.2, Z_LID_IN - 1, Z_TOP + 1))
-    cuts.append(text_solid("RESET", RESET[0], RESET[1] + 4.5, Z_TOP - 0.4, 1.0, 2.0))
+    cuts.append(text_solid("RESET", RESET[0], RESET[1] + 4.0, Z_TOP - 0.4, 1.0, 1.8))
     for x, y in LEDS:
-        cuts.append(cyl(x, y, 1.65, Z_LID_IN - 1, Z_TOP + 1))
-    cuts.append(text_solid("PWR", LEDS[3][0], LEDS[3][1] - 3.6, Z_TOP - 0.4, 1.0, 2.0))
+        cuts.append(cyl(x, y, LED_PIPE_D / 2, LED_TUBE_Z0 - 1, Z_TOP + 1))
+    cuts.append(text_solid("PWR", LEDS[3][0] + 5.0, LEDS[3][1], Z_TOP - 0.4, 1.0, 1.8))
     cuts.append(cyl(rv1_screw[0], rv1_screw[1], 1.8, Z_LID_IN - 1, Z_TOP + 1))
-    cuts.append(text_solid("CONTRAST", rv1_screw[0] + 11.5, rv1_screw[1], Z_TOP - 0.4, 1.0, 2.0))
+    cuts.append(text_solid("CONTRAST", rv1_screw[0] - 4.5, rv1_screw[1] + 3.9, Z_TOP - 0.4, 1.0, 1.8))
     # buzzer grille
     import math
     bx, by = BUZZER
