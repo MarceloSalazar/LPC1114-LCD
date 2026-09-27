@@ -163,6 +163,8 @@ def make_base():
         cuts.append(cyl(x, y, PILOT_D / 2, Z_BOTTOM + 0.8, 0.1))
     for x, y in LCD_HOLES:
         cuts.append(cyl(x, y, 2.6, Z_BOTTOM + FLOOR, 0.1))
+    # pocket for the optional (DNP) CR2032 holder BT1 on the PCB bottom side (4 mm tall)
+    cuts.append(box(53.0, 9.8, 78.0, 28.2, Z_BOTTOM + FLOOR - 1.0, Z_BOTTOM + FLOOR + 0.1))
     # pocket under the long legs of the contrast trimmer RV1
     cuts.append(box(68.5, 38.0, 80.0, 42.6, Z_BOTTOM + FLOOR - 1.0, Z_BOTTOM + FLOOR + 0.1))
     # USB plug clearance (lower half)

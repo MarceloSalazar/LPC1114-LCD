@@ -2,7 +2,7 @@
 "BZ1","PS1420P02CT","LPC1114-LCD:Buzzer_TDK_PS1420P02CT_D14mm_P10mm","1","TDK PS1420P02CT (piezo, D14 mm, pitch 10 mm)","Buzzer, polarized"
 "DS1","LCD1602 (HD44780/ST7066)","LPC1114-LCD:LCD1602_18pin","1","","Mounted on top with 1x16/1x18 female header (user)"
 "J2","SWD+I2C","Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical","1","","Debug/expansion: 1=3V3 2=SWDIO 3=SWCLK 4=RESET 5=GND 6=SCL 7=SDA"
-"J3","UART","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical","1","","3.3V UART: GND / RX(in) / TX(out)"
+"J3","UART","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical","1","","External 3.3V UART: GND / RX(in) / TX(out), select with JP5/JP6"
 "RV1","10k","Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical","1","","LCD contrast, multi-turn vertical trimmer 3 pins in line 2.54 mm (user)"
 "U1","LPC1114FN28/102","Package_DIP:DIP-28_W15.24mm_Socket","1","NXP LPC1114FN28/102 + DIP-28 600mil socket","NXP LPC1114 ARM Cortex-M0 MCU, 32kB flash, 4kB SRAM, DIP-28 (LPC1114FN28/102)"
 "U5","USBLC6-2SC6","Package_TO_SOT_SMD:SOT-23-6_Handsoldering","1","ST USBLC6-2SC6","USB ESD protection (hand-soldered by the user)"

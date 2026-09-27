@@ -1,10 +1,19 @@
-# Notas de diseño: LPC1114-LCD v1.1
+# Notas de diseño: LPC1114-LCD v1.2
 
 Documento de referencia del hardware. El esquemático completo está en [LPC1114-LCD_schematic.pdf](LPC1114-LCD_schematic.pdf)
 y el proyecto KiCad en [hardware/](../../hardware). Los motivos del paso a PCBA con componentes Basic están en
 [schematic-review-jlcpcb.md](schematic-review-jlcpcb.md).
 
-## 1. Cambios respecto a la v1.0
+## 0. Cambios de la v1.2 respecto a la v1.1
+
+| Cambio | Detalle |
+|--------|---------|
+| RTC opcional en la cara inferior (**DNP**) | U4 DS3231MZ+ (C107410) entre las filas del zócalo DIP, C9 de 100 nF y BT1: portapilas CR2032 SMD Keystone 3034 (C5213768). Van en el bus I2C de J2, con los pull-ups R3/R4 ya montados. No se montan y no entran en la BOM ni la CPL de JLCPCB; están en `LPC1114-LCD_DNP_options.csv`. |
+| Puentes para omitir el USBLC6 | D+ y D- pasan en serie por U5 (conector → pines 1/3 → pines 6/4 → CH340). **JP3/JP4** (cara inferior, abiertos) lo puentean si no se monta. |
+| Selección de UART | **JP5** (RX del MCU) y **JP6** (TX del MCU) son puentes de 3 pads en la cara inferior: 1-2 = CH340 (puenteado de fábrica con pista fina), 2-3 = J3. Así el CH340 y una UART externa nunca se conectan a la vez. |
+| Caja | La base tiene un rebaje de 1 mm bajo el portapilas, que mide 4 mm de alto, por si se monta en el futuro. |
+
+## 1. Cambios de la v1.1 respecto a la v1.0
 
 | v1.0 (THT, montaje manual) | v1.1 (PCBA JLCPCB) |
 |-------------------------------|------------------------|
@@ -79,10 +88,18 @@ de 2 mm y el LPC1114 en su zócalo (~8 mm). J2 y J3 quedan fuera del LCD, así q
 
 - Pista de 0,25 mm (0,3 mm en +3V3/GND/retroiluminación/buzzer), separación de 0,2 mm, vías de 0,6/0,3 mm y plano de GND en las dos caras.
 - La separación entre agujero NPTH y cobre es de 0,15 mm. Solo afecta al micro USB, cuyo footprint oficial deja 0,18 mm entre sus pads y sus pivotes de fijación.
-- Verificación v1.1: **ERC 0**, **DRC 0 errores y 0 avisos**, **paridad esquemático-PCB OK** y **0 conexiones sin rutar**.
+- Verificación v1.2: **ERC 0**, **DRC 0 errores y 0 avisos**, **paridad esquemático-PCB OK** y **0 conexiones sin rutar**.
   Para evitar una zona congestionada, la línea de +5V lleva un tramo pre-rutado sobre la tira del LCD y una vía de salida en el pin VBUS.
 
-## 7. Puntos a verificar
+## 7. Configuración de los puentes de soldadura (cara inferior salvo JP1/JP2)
+
+| Puente | De fábrica | Uso |
+|--------|------------|-----|
+| JP1 (DTR → RESET), JP2 (RTS → ISP) | Abiertos | Cerrar para programar automáticamente con `lpc21isp -control` |
+| JP3 (D+), JP4 (D-) | Abiertos | Cerrar **solo** si no se monta el USBLC6 (U5) |
+| JP5 (RX), JP6 (TX) | 1-2 (CH340) | UART externa en J3: cortar la pista 1-2 con un cúter y puentear 2-3 en los dos |
+
+## 8. Puntos a verificar
 
 1. **Orientación en JLCPCB**: revisa la vista previa de la CPL (SOT-23, SOIC-16, cristal de 4 pads, micro USB y pulsadores) antes de confirmar el pedido.
 2. **Pulsador TS-1187A**: el footprint es propio. Solo se usan dos pads en diagonal, así que funciona sea cual sea la pareja de patillas unida por dentro.

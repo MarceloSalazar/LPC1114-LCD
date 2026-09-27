@@ -1,6 +1,6 @@
 # Caja impresa en 3D
 
-Caja de dos piezas para la placa LPC1114-LCD v1.1: la **superior** (display) y la **inferior** (base).
+Caja de dos piezas para la placa LPC1114-LCD v1.2: la **superior** (display) y la **inferior** (base).
 Se cierra con **4 tornillos M3 × 16** que entran desde abajo.
 
 | Montada | Despiece |
@@ -21,7 +21,7 @@ Se cierra con **4 tornillos M3 × 16** que entran desde abajo.
 | `case.py` | Script paramétrico que genera todo lo anterior |
 | `render.py` | Genera las imágenes de `docs/images/case_*.png` |
 
-## Características (v1.1)
+## Características (v1.2)
 
 - Medidas exteriores: **92,8 × 64,8 × 31,4 mm**. Paredes y fondo de 2 mm; la unión entre piezas está a la altura de la cara superior del PCB.
 - **Ventana del LCD** de 67 × 17 mm con chaflán exterior. La tapa apoya sobre el marco del LCD (holgura de 0,2 mm).
@@ -35,6 +35,7 @@ Se cierra con **4 tornillos M3 × 16** que entran desde abajo.
   Al cerrar la caja, el PCB queda sujeto entre los tubos de la base y la tapa, que apoya sobre el LCD. Un labio perimetral centra la tapa.
 - Comprobado en FreeCAD: **0 mm³ de interferencia** entre las dos piezas y el PCB (con el LCD a su altura real y las tiras J2/J3).
   Los pulsadores SMD, el buzzer y el micro USB no tienen modelo 3D en KiCad, así que los he comprobado con sus medidas.
+- La base tiene un rebaje de 1 mm bajo el portapilas CR2032 del RTC opcional (cara inferior del PCB), así que se puede montar sin cambiar la caja.
 - J2 (SWD) y J3 (UART) quedan dentro. Para programar por SWD hay que abrir la caja; con ella cerrada se puede programar por el USB (bootloader ISP).
 
 ## Impresión (PLA o PETG)

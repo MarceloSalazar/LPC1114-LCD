@@ -11,7 +11,7 @@
 "DS1","LCD1602 (HD44780/ST7066)","LPC1114-LCD:LCD1602_18pin","1","","USER","","Mounted on top with 1x16/1x18 female header (user)"
 "J1","USB_B_Micro","Connector_USB:USB_Micro-B_XKB_U254-051T-4BH83-F1S","1","C397452","","XKB U254-051T-4BH83-F1S","Micro USB B receptacle: power + USB-UART"
 "J2","SWD+I2C","Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical","1","","USER","","Debug/expansion: 1=3V3 2=SWDIO 3=SWCLK 4=RESET 5=GND 6=SCL 7=SDA"
-"J3","UART","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical","1","","USER","","3.3V UART: GND / RX(in) / TX(out)"
+"J3","UART","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical","1","","USER","","External 3.3V UART: GND / RX(in) / TX(out), select with JP5/JP6"
 "Q1,Q2","SS8050","Package_TO_SOT_SMD:SOT-23","2","C2150","","","NPN transistor, base/emitter/collector"
 "R1,R13,R15","10k","Resistor_SMD:R_0603_1608Metric","3","C25804","","","Resistor"
 "R2,R8,R12,R14,R16","1k","Resistor_SMD:R_0603_1608Metric","5","C21190","","","Piezo discharge resistor,Resistor"

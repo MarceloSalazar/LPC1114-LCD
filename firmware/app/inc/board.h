@@ -1,5 +1,5 @@
 /*
- * board.h - LPC1114-LCD v1.1 pin map and board constants.
+ * board.h - LPC1114-LCD v1.2 pin map and board constants.
  *
  * Generated from the hardware design (hardware/LPC1114-LCD.kicad_sch).
  * Keep in sync with the schematic whenever the hardware changes.
@@ -63,13 +63,18 @@
 #define BUZZER_PIN              9   /* PIO1_9, DIP pin 18 */
 #define BUZZER_RESONANCE_HZ     2000UL
 
-/* ---------------------------------------------------------------- I2C expansion on J2 pins 6/7 (4k7 pull-ups to 3.3 V) */
+/* ---------------------------------------------------------------- I2C on J2 pins 6/7 (4k7 pull-ups to 3.3 V)
+ * Optional RTC footprint on the bottom side (DS3231MZ, DNP by default).
+ */
 #define I2C_SCL_PORT            0
 #define I2C_SCL_PIN             4   /* PIO0_4, DIP pin 27 */
 #define I2C_SDA_PORT            0
 #define I2C_SDA_PIN             5   /* PIO0_5, DIP pin 5 */
+#define RTC_I2C_ADDR            0x68U   /* only if the optional DS3231MZ (U4) is fitted */
 
-/* ---------------------------------------------------------------- UART (CH340C on micro USB, and header J3) */
+/* ---------------------------------------------------------------- UART
+ * Routed to the CH340C (micro USB) by default, or to header J3 by re-bridging JP5/JP6 (2-3).
+ */
 #define UART_RXD_PORT           1
 #define UART_RXD_PIN            6   /* PIO1_6, DIP pin 15 */
 #define UART_TXD_PORT           1

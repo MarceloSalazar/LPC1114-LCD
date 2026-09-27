@@ -63,7 +63,7 @@ $bomAll = Join-Path $fab "${name}_BOM.csv"
 Invoke-Cli sch export bom --output $bomAll `
     --fields "Reference,Value,Footprint,`${QUANTITY},LCSC,Assembly,MPN,Description" `
     --labels "Reference,Value,Footprint,Qty,LCSC,Assembly,MPN,Description" `
-    --group-by "Value,Footprint,LCSC" --exclude-dnp $sch
+    --group-by "Value,Footprint,LCSC,Assembly" --exclude-dnp $sch
 $rows = Import-Csv $bomAll
 
 Write-Host "== JLCPCB PCBA: BOM + CPL (only parts with an LCSC number)"
@@ -100,6 +100,17 @@ Import-Csv $posRaw | Where-Object { $jlcRefs.ContainsKey($_.Ref) } | ForEach-Obj
 Remove-Item $posRaw -ErrorAction SilentlyContinue
 $missing = $jlcRefs.Keys | Where-Object { -not ((Import-Csv (Join-Path $fab "${name}_JLCPCB_CPL.csv")).Designator -contains $_) }
 if ($missing) { throw "CPL is missing placements for: $($missing -join ', ')" }
+
+Write-Host "== DNP parts (not fitted, future options)"
+$bomDnp = Join-Path $fab "dnp_tmp.csv"
+Invoke-Cli sch export bom --output $bomDnp `
+    --fields "Reference,Value,Footprint,`${QUANTITY},LCSC,Assembly,MPN,Description" `
+    --labels "Reference,Value,Footprint,Qty,LCSC,Assembly,MPN,Description" `
+    --group-by "Value,Footprint,LCSC,Assembly" $sch
+Import-Csv $bomDnp | Where-Object { $_.Assembly -like "DNP*" } |
+    Select-Object Reference, Value, Footprint, Qty, LCSC, MPN, Assembly |
+    Export-Csv -NoTypeInformation -Encoding UTF8 (Join-Path $fab "${name}_DNP_options.csv")
+Remove-Item $bomDnp -ErrorAction SilentlyContinue
 
 Write-Host "== Parts to hand-solder (Assembly=USER)"
 $rows | Where-Object { $_.Assembly -eq "USER" } |

@@ -1,0 +1,4 @@
+﻿"Reference","Value","Footprint","Qty","LCSC","MPN","Assembly"
+"BT1","CR2032","Battery:BatteryHolder_Keystone_3034_1x20mm","1","C5213768","Keystone 3034 (SMD CR2032 holder)","DNP (future RTC, bottom side)"
+"C9","100nF","Capacitor_SMD:C_0603_1608Metric","1","C14663","","DNP (future RTC, bottom side)"
+"U4","DS3231MZ+","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","1","C107410","Analog Devices DS3231MZ+ (+-5ppm MEMS RTC)","DNP (future RTC, bottom side)"
